@@ -1,5 +1,5 @@
-; camlp5 ./pa_schemer.cmo pa_extend.cmo q_MLast.cmo pr_dump.cmo
-; pa_scheme.ml,v
+; camlp5 ./pa_r5rsr.cmo pa_extend.cmo q_MLast.cmo pr_dump.cmo
+; pa_r5rs.ml,v
 ; Copyright (c) INRIA 2007-2017
 
 (open Pcaml)

@@ -25,6 +25,7 @@ archive(syntax,preprocessor,camlp5o) = "pa_o.cmo pa_op.cmo pr_dump.cmo"
 archive(syntax,preprocessor,camlp5r) = "pa_r.cmo pa_rp.cmo pr_dump.cmo"
 archive(syntax,preprocessor,camlp5sml) = "pa_sml.cmo pr_dump.cmo"
 archive(syntax,preprocessor,camlp5scheme) = "pa_scheme.cmo pr_dump.cmo"
+archive(syntax,preprocessor,camlp5r5rs) = "pa_r5rs.cmo pr_dump.cmo"
 archive(syntax,preprocessor,camlp5lisp) = "pa_lisp.cmo pr_dump.cmo"
 preprocessor = "camlp5 -nolib"
 
