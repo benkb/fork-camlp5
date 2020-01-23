@@ -4,9 +4,10 @@ include ../config/Makefile
 
 INCLUDES=-I ../main -I ../boot -I ../lib
 OCAMLCFLAGS=$(WARNERR) $(INCLUDES)
-OBJS=pa_o.cmo pa_op.cmo pa_oop.cmo pa_sml.cmo pa_lisp.cmo pa_scheme.cmo pa_extfold.cmo pa_extfun.cmo pa_extprint.cmo pa_lefteval.cmo pa_mkast.cmo pa_mktest.cmo pa_pprintf.cmo pa_pragma.cmo pa_reloc.cmo pr_r.cmo pr_ro.cmo pr_rp.cmo pr_o.cmo pr_op.cmo pr_scheme.cmo pr_schemep.cmo pr_extend.cmo pr_extfun.cmo pr_extprint.cmo pr_depend.cmo pr_null.cmo q_phony.cmo
+OBJS=pa_o.cmo pa_op.cmo pa_oop.cmo pa_sml.cmo pa_lisp.cmo pa_scheme.cmo pa_r5rs.cmo pa_extfold.cmo pa_extfun.cmo pa_extprint.cmo pa_lefteval.cmo pa_mkast.cmo pa_mktest.cmo pa_pprintf.cmo pa_pragma.cmo pa_reloc.cmo pr_r.cmo pr_ro.cmo pr_rp.cmo pr_o.cmo pr_op.cmo pr_scheme.cmo pr_schemep.cmo pr_extend.cmo pr_extfun.cmo pr_extprint.cmo pr_depend.cmo pr_null.cmo q_phony.cmo
 CAMLP5OM=pa_o.cmo pa_op.cmo ../meta/pr_dump.cmo
 CAMLP5SCHM=pa_scheme.cmo ../meta/pr_dump.cmo
+CAMLP5R5RS=pa_r5rs.cmo ../meta/pr_dump.cmo
 CAMLP5OMX=pa_o.cmx pa_op.cmx ../meta/pr_dump.cmx
 SHELL=/bin/sh
 COUT=$(OBJS) $(CAMLP5N)o$(EXE) $(CAMLP5N)sch$(EXE)
@@ -20,6 +21,8 @@ opt: $(COPT) mk$(CAMLP5N).opt.sh
 pa_lisp.cmo pa_lisp.cmx: pa_lisp.ml
 	$(MAKE) $(NO_PR_DIR) -f Makefile.withnew $@
 pa_scheme.cmo pa_scheme.cmx: pa_scheme.ml
+	$(MAKE) $(NO_PR_DIR) -f Makefile.withnew $@
+pa_r5rs.cmo pa_r5rs.cmx: pa_r5rs.ml
 	$(MAKE) $(NO_PR_DIR) -f Makefile.withnew $@
 pa_extfold.cmo pa_extfold.cmx: pa_extfold.ml
 	$(MAKE) $(NO_PR_DIR) -f Makefile.withnew $@
@@ -58,6 +61,10 @@ $(CAMLP5N)sch$(EXE): ../main/$(CAMLP5N)$(EXE) $(CAMLP5SCHM)
 	$(RM) -f $(CAMLP5N)sch$(EXE)
 	cd ../main; $(MAKE) CAMLP5=../etc/$(CAMLP5N)sch$(EXE) CAMLP5M="-I ../etc $(CAMLP5SCHM)"
 
+$(CAMLP5N)r5rs$(EXE): ../main/$(CAMLP5N)$(EXE) $(CAMLP5R5RS)
+	$(RM) -f $(CAMLP5N)r5rs$(EXE)
+	cd ../main; $(MAKE) CAMLP5=../etc/$(CAMLP5N)r5rs$(EXE) CAMLP5M="-I ../etc $(CAMLP5R5RS)"
+
 $(CAMLP5N)o.opt: $(CAMLP5OMX)
 	$(RM) -f $(CAMLP5N)o.opt
 	cd ../main; $(MAKE) optp5 CAMLP5OPT=../etc/$(CAMLP5N)o.opt CAMLP5M="-I ../etc $(CAMLP5OMX)"
@@ -76,6 +83,10 @@ bootstrap_lisp:
 	@$(MAKE) $(NO_PR_DIR) bootstrap_l L=lisp
 compare_lisp:
 	@$(MAKE) $(NO_PR_DIR) compare_l L=lisp
+bootstrap_r5rs:
+	@$(MAKE) $(NO_PR_DIR) bootstrap_l L=r5rs
+compare_r5rs:
+	@$(MAKE) $(NO_PR_DIR) compare_l L=r5rs
 
 bootstrap_l:
 	ocamlrun$(EXE) ../boot/$(CAMLP5N) ./pa_$Lr.cmo -I ../boot pa_extend.cmo ./pr_r.cmo ./pr_extend.cmo ./pr_rp.cmo ./q_phony.cmo pa_$L.ml > tmp
@@ -122,6 +133,7 @@ install:
 
 pa_lisp.cmo: pa_lispr.cmo
 pa_scheme.cmo: pa_schemer.cmo
+pa_r5rs.cmo: pa_r5rsr.cmo
 pr_extend.cmo: pa_extfun.cmo pa_extprint.cmo pa_pprintf.cmo
 pr_extfun.cmo: pa_extfun.cmo pa_extprint.cmo pa_pprintf.cmo
 pr_extprint.cmo: pa_extfun.cmo pa_extprint.cmo pa_pprintf.cmo

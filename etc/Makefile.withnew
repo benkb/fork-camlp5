@@ -10,6 +10,7 @@ all:
 
 pa_lisp.cmo: pa_lispr.cmo
 pa_scheme.cmo: pa_schemer.cmo
+pa_r5rs.cmo: pa_r5rsr.cmo
 pr_extend.cmo: pa_extfun.cmo pa_extprint.cmo pa_pprintf.cmo
 pr_extfun.cmo: pa_extfun.cmo pa_extprint.cmo pa_pprintf.cmo
 pr_extprint.cmo: pa_extfun.cmo pa_extprint.cmo pa_pprintf.cmo
