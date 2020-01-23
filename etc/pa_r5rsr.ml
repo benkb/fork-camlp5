@@ -1,5 +1,5 @@
 (* camlp5 pa_r.cmo pa_rp.cmo pa_extend.cmo q_MLast.cmo pr_dump.cmo *)
-(* pa_scheme.ml,v *)
+(* pa_r5rs.ml,v *)
 (* Copyright (c) INRIA 2007-2017 *)
 
 open Pcaml;
@@ -594,7 +594,7 @@ value peek_fun loc = <:expr< Stream.peek >>;
 value junk_fun loc = <:expr< Stream.junk >>;
 
 value assoc_left_parsed_op_list =
-  ["+"; "*"; "+."; "*."; "land"; "lor"; "lxor"]
+  ["|>"; "pipe"; "+"; "*"; "+."; "*."; "land"; "lor"; "lxor"]
 ;
 value assoc_right_parsed_op_list = ["and"; "or"; "^"; "@"];
 value and_by_couple_op_list = ["="; "<>"; "<"; ">"; "<="; ">="; "=="; "!="];
@@ -1090,13 +1090,33 @@ and expr_se =
   | Sexpr loc [Slid _ "values" :: sel] ->
       let el = anti_list_map expr_se sel in
       <:expr< ($_list:el$) >>
-  | Srec loc [Slid _ "with"; se :: sel] ->
-      let e = expr_se se
+  | Sexpr loc [Slid _ "list" :: sel] ->
+      loop sel where rec loop =
+        fun
+        [ [] -> <:expr< [] >>
+        | [se1; Slid _ "."; se2] ->
+            let e = expr_se se1 in
+            let el = expr_se se2 in
+            <:expr< [$e$ :: $el$] >>
+        | [se :: sel] ->
+            let e = expr_se se in
+            let el = loop sel in
+            <:expr< [$e$ :: $el$] >> ]
+  | Sexpr loc [Slid _ "recwith"; se :: sel] ->
+      (* TODO 1106*)
+      (*((Srec loc [(Slid _ "with") se . sel])*)
+      let e =
+        expr_se se
       and lel = anti_list_map (label_expr_se loc) sel in
       <:expr< { ($e$) with $_list:lel$ } >>
   | Srec loc sel ->
       let lel = anti_list_map (label_expr_se loc) sel in
       <:expr< { $_list:lel$ } >>
+  | Sexpr loc [Slid _ "setrec" :: sel] -> do {
+      print_string "fff";
+      let lel = List.map (label_expr_se loc) sel in
+      <:expr< { $list:lel$ } >>
+    }
   | Sexpr loc [Slid _ ":"; se1; se2] ->
       let e = expr_se se1 in
       let t = ctyp_se se2 in

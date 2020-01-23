@@ -1,5 +1,5 @@
-; camlp5 ./pa_schemer.cmo pa_extend.cmo q_MLast.cmo pr_dump.cmo
-; pa_scheme.ml,v
+; camlp5 ./pa_r5rsr.cmo pa_extend.cmo q_MLast.cmo pr_dump.cmo
+; pa_r5rs.ml,v
 ; Copyright (c) INRIA 2007-2017
 
 (open Pcaml)
@@ -36,9 +36,6 @@
   (Pcaml.rename_id.val s)))
 
 ; Lexer
-
-(define (gugus dada)
-   dada)
 
 (definerec (skip_to_eol len)
  (parser
@@ -334,7 +331,7 @@
 (define (peek_fun loc) <:expr< Stream.peek >>)
 (define (junk_fun loc) <:expr< Stream.junk >>)
 
-(define assoc_left_parsed_op_list ["+" "*" "+." "*." "land" "lor" "lxor"])
+(define assoc_left_parsed_op_list ["|>" "pipe" "+" "*" "+." "*." "land" "lor" "lxor"])
 (define assoc_right_parsed_op_list ["and" "or" "^" "@"])
 (define and_by_couple_op_list ["=" "<>" "<" ">" "<=" ">=" "==" "!="])
 
@@ -675,6 +672,7 @@
     (let ((e (begin_se loc1 sel)))
      (match (ipatt_opt_se sep)
       ((Left p) <:expr< fun $p$ -> $e$ >>)
+      ;((Left p) <:expr< fun $p$ -> $e$ >>) putting (x)
       ((Right (values se sel))
        (List.fold_right
         (lambda (se e) (let ((p (ipatt_se se))) <:expr< fun $p$ -> $e$ >>))
@@ -770,12 +768,29 @@
      <:expr< [| $_list:el$ |] >>))
    ((Sexpr loc [(Slid _ "values") . sel])
     (let ((el (anti_list_map expr_se sel))) <:expr< ($_list:el$) >>))
-   ((Srec loc [(Slid _ "with") se . sel])
+   ((Sexpr loc [(Slid _ "list") . sel])
+    (letrec
+     ((loop
+       (lambda_match
+        ([] <:expr< [] >>)
+        ([se1 (Slid _ ".") se2]
+         (let* ((e (expr_se se1)) (el (expr_se se2)))
+          <:expr< [$e$ :: $el$] >>))
+        ([se . sel]
+         (let* ((e (expr_se se)) (el (loop sel)))
+          <:expr< [$e$ :: $el$] >>)))))
+     (loop sel)))
+   ((Sexpr loc [(Slid _ "recwith") se . sel])
+   ;((Srec loc [(Slid _ "with") se . sel])
     (let ((e (expr_se se)) (lel (anti_list_map (label_expr_se loc) sel)))
-     <:expr< { ($e$) with $_list:lel$ } >>))
+    <:expr< { ($e$) with $_list:lel$ } >>))
    ((Srec loc sel)
-    (let ((lel (anti_list_map (label_expr_se loc) sel)))
-     <:expr< { $_list:lel$ } >>))
+   (let ((lel (anti_list_map (label_expr_se loc) sel)))
+   <:expr< { $_list:lel$ } >>))
+  ((Sexpr loc [ (Slid _ "setrec") . sel])
+
+  (print_string "fff")
+   (let ((lel (List.map (label_expr_se loc) sel))) <:expr< { $list:lel$ } >>))
    ((Sexpr loc [(Slid _ ":") se1 se2])
     (let* ((e (expr_se se1)) (t (ctyp_se se2))) <:expr< ($e$ : $t$) >>))
    ((Sexpr loc [se]) (let ((e (expr_se se))) <:expr< $e$ () >>))

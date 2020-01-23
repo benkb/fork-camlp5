@@ -1,1 +1,1 @@
-(recordset "kaka" 00)
+(setrec (foo "kaka"))
